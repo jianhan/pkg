@@ -12,22 +12,22 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ConfigsReader is a single method interface for configs reader.
-type ConfigsReader interface {
+// Reader is a single method interface for configs reader.
+type Reader interface {
 	Read() (*ServiceConfigs, error)
 }
 
-// NewConfigsReader returns a new interface for ConfigsReader.
-func NewConfigsReader(env string, extraConfigPaths ...string) ConfigsReader {
+// NewReader returns a new interface for ConfigsReader.
+func NewReader(env string, extraPaths ...string) Reader {
 	return &scfgReader{
-		env:              env,
-		extraConfigPaths: extraConfigPaths,
+		env:        env,
+		extraPaths: extraPaths,
 	}
 }
 
 type scfgReader struct {
-	env              string
-	extraConfigPaths []string
+	env        string
+	extraPaths []string
 }
 
 // ServiceConfigs represents common configs for any go-micro service.
@@ -61,7 +61,7 @@ func (s *ServiceConfigs) Validate() error {
 }
 
 func (s *scfgReader) Read() (*ServiceConfigs, error) {
-	paths := append([]string{"../configs/base.yml", fmt.Sprintf("../configs/%s.yml", s.env)}, s.extraConfigPaths...)
+	paths := append([]string{"../configs/base.yml", fmt.Sprintf("../configs/%s.yml", s.env)}, s.extraPaths...)
 	for _, path := range paths {
 		fileInfo, err := os.Stat(path)
 		if err != nil {
