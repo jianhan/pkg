@@ -33,8 +33,8 @@ type scfgReader struct {
 // ServiceConfigs represents common configs for any go-micro service.
 type ServiceConfigs struct {
 	Name             string
-	RegisterTTL      int
-	RegisterInterval int
+	RegisterTTL      int `mapstructure:"register_ttl"`
+	RegisterInterval int `mapstructure:"register_interval"`
 	Version          string
 	Metadata         map[string]string
 }
@@ -64,7 +64,7 @@ func (s *scfgReader) Read() (*ServiceConfigs, error) {
 	if strings.TrimSpace(s.env) == "" {
 		return nil, errors.New("env can not be blank")
 	}
-	paths := append([]string{"../configs/base.yml", fmt.Sprintf("../configs/%s.yml", s.env)}, s.extraPaths...)
+	paths := append([]string{"configs/base.yml", fmt.Sprintf("configs/%s.yml", s.env)}, s.extraPaths...)
 	for _, path := range paths {
 		fileInfo, err := os.Stat(path)
 		if err != nil {
