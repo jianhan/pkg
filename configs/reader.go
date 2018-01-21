@@ -11,10 +11,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+// ConfigsReader is a single method interface for configs reader.
 type ConfigsReader interface {
 	Read() (*ServiceConfigs, error)
 }
 
+// NewConfigsReader returns a new interface for ConfigsReader.
 func NewConfigsReader(env string, extraConfigPaths ...string) ConfigsReader {
 	return &scfgReader{
 		env:              env,
@@ -27,6 +29,7 @@ type scfgReader struct {
 	extraConfigPaths []string
 }
 
+// ServiceConfigs represents common configs for any go-micro service.
 type ServiceConfigs struct {
 	Name             string
 	RegisterTTL      int
@@ -35,9 +38,23 @@ type ServiceConfigs struct {
 	Metadata         map[string]string
 }
 
+// Validate checks all required value are set correctly.
 func (s *ServiceConfigs) Validate() error {
+	// all services must have a name
 	if strings.TrimSpace(s.Name) == "" {
-		return errors.New("service name can not be empty, please set it in configuration yml file.")
+		return errors.New("service name can not be empty, please set it in configuration yml file")
+	}
+	// all service must have a version
+	if strings.TrimSpace(s.Version) == "" {
+		return errors.New("service version can not be empty, please set it in configuration yml file")
+	}
+	// TTL is required
+	if s.RegisterTTL == 0 {
+		return errors.New("TTL to use when registering the service is required and can not be 0, please set it in configuration yml file")
+	}
+	// interval for re-registering service is required
+	if s.RegisterTTL == 0 {
+		return errors.New("interval for re-registering service is required and can not be 0, please set it in configuration yml file")
 	}
 	return nil
 }
@@ -56,9 +73,9 @@ func (s *scfgReader) Read() (*ServiceConfigs, error) {
 		fileBaseName := fileName[0 : len(fileName)-len(fileExt)]
 		fileDir := filepath.Dir(path)
 		viper.SetConfigName(fileBaseName)
-		viper.AddConfigPath(fileDir) // path to look for the config file in
-		err = viper.MergeInConfig()  // Find and read the config file
-		if err != nil {              // Handle errors reading the config file
+		viper.AddConfigPath(fileDir)
+		err = viper.MergeInConfig()
+		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err.Error,
 			}).Warn("failed to read/merge configs")
