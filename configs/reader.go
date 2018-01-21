@@ -1,3 +1,4 @@
+// Package configs provides functions for loading configurations when app boots via viper
 package configs
 
 import (
