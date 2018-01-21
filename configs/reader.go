@@ -61,6 +61,9 @@ func (s *ServiceConfigs) Validate() error {
 }
 
 func (s *scfgReader) Read() (*ServiceConfigs, error) {
+	if strings.TrimSpace(s.env) == "" {
+		return nil, errors.New("env can not be blank")
+	}
 	paths := append([]string{"../configs/base.yml", fmt.Sprintf("../configs/%s.yml", s.env)}, s.extraPaths...)
 	for _, path := range paths {
 		fileInfo, err := os.Stat(path)
@@ -85,6 +88,9 @@ func (s *scfgReader) Read() (*ServiceConfigs, error) {
 	}
 	c := &ServiceConfigs{}
 	if err := viper.UnmarshalKey("service", c); err != nil {
+		return nil, err
+	}
+	if err := c.Validate(); err != nil {
 		return nil, err
 	}
 	return c, nil
