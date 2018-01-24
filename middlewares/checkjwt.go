@@ -7,11 +7,12 @@ import (
 
 	auth0 "github.com/auth0-community/go-auth0"
 	h "github.com/jianhan/pkg/http"
-	"github.com/spf13/viper"
+	"github.com/urfave/negroni"
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
 )
 
+// JwtRequestValidatorScopeChecker contains methods for JWT validation.
 type JwtRequestValidatorScopeChecker interface {
 	ValidateRequest(r *http.Request) error
 	CheckScope(r *http.Request) error
@@ -25,12 +26,8 @@ type auth0ValidatorScopeChecker struct {
 	token        *jwt.JSONWebToken
 }
 
-func NewJWTRequestValidatorScopeChecker() (JwtRequestValidatorScopeChecker, error) {
-	domain := viper.GetString("auth0.domain")
-	clientID := viper.GetString("auth0.client_id")
-	clientSecret := viper.GetString("auth0.client_secret")
-	audiences := []string{viper.GetString("auth0.audience")}
-
+// NewJWTRequestValidatorScopeChecker creates instance of JwtRequestValidatorScopeChecker.
+func NewJWTRequestValidatorScopeChecker(domain, clientID, clientSecret string, audiences []string) (JwtRequestValidatorScopeChecker, error) {
 	// start validation for constructor
 	if strings.TrimSpace(domain) == "" {
 		return nil, errors.New("Domain can not be empty")
@@ -57,6 +54,7 @@ func NewJWTRequestValidatorScopeChecker() (JwtRequestValidatorScopeChecker, erro
 	}, nil
 }
 
+// ValidateRequest performs validation for request.
 func (a *auth0ValidatorScopeChecker) ValidateRequest(r *http.Request) error {
 	token, err := a.jwtValidator.ValidateRequest(r)
 	if err != nil {
@@ -66,6 +64,7 @@ func (a *auth0ValidatorScopeChecker) ValidateRequest(r *http.Request) error {
 	return nil
 }
 
+// CheckScope performs scope checking for JWT token.
 func (a *auth0ValidatorScopeChecker) CheckScope(r *http.Request) error {
 	claims := map[string]interface{}{}
 	if a.jwtValidator == nil {
@@ -88,17 +87,19 @@ func (a *auth0ValidatorScopeChecker) CheckScope(r *http.Request) error {
 	return errors.New("Invalid scope")
 }
 
-func CheckJWTMiddleware(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	jvs, _ := NewJWTRequestValidatorScopeChecker()
-	err := jvs.ValidateRequest(r)
-	if err != nil {
-		h.SendJSONResponse(rw, http.StatusUnauthorized, h.NewResponseData(http.StatusUnauthorized, err.Error(), nil))
-		return
-	}
-	err = jvs.CheckScope(r)
-	if err != nil {
-		h.SendJSONResponse(rw, http.StatusUnauthorized, h.NewResponseData(http.StatusUnauthorized, err.Error(), nil))
-		return
-	}
-	next(rw, r)
+// CheckJWTMiddleware is the middleware which will perform jwt validation
+func CheckJWTMiddleware(jvs JwtRequestValidatorScopeChecker) negroni.HandlerFunc {
+	return negroni.HandlerFunc(func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		err := jvs.ValidateRequest(r)
+		if err != nil {
+			h.SendJSONResponse(rw, http.StatusUnauthorized, h.NewResponseData(http.StatusUnauthorized, err.Error(), nil))
+			return
+		}
+		err = jvs.CheckScope(r)
+		if err != nil {
+			h.SendJSONResponse(rw, http.StatusUnauthorized, h.NewResponseData(http.StatusUnauthorized, err.Error(), nil))
+			return
+		}
+		next(rw, r)
+	})
 }
