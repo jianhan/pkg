@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	auth0 "github.com/auth0-community/go-auth0"
+	h "github.com/jianhan/pkg/http"
 	"github.com/spf13/viper"
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
@@ -85,4 +86,19 @@ func (a *auth0ValidatorScopeChecker) CheckScope(r *http.Request) error {
 		return nil
 	}
 	return errors.New("Invalid scope")
+}
+
+func CheckJWTMiddleware(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	jvs, _ := NewJWTRequestValidatorScopeChecker()
+	err := jvs.ValidateRequest(r)
+	if err != nil {
+		h.SendJSONResponse(rw, http.StatusUnauthorized, h.NewResponseData(http.StatusUnauthorized, err.Error(), nil))
+		return
+	}
+	err = jvs.CheckScope(r)
+	if err != nil {
+		h.SendJSONResponse(rw, http.StatusUnauthorized, h.NewResponseData(http.StatusUnauthorized, err.Error(), nil))
+		return
+	}
+	next(rw, r)
 }
