@@ -4,14 +4,11 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-func NewSession(url string) (*mgo.Session, func(), error) {
-	closeFunc := func() {}
-	db, err := mgo.Dial(url)
+func NewSession(url string) (*mgo.Session, error) {
+	s, err := mgo.Dial(url)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	closeFunc = func() {
-		db.Close()
-	}
-	return db, closeFunc, nil
+	s.SetMode(mgo.Monotonic, true)
+	return s, nil
 }
