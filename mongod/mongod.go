@@ -13,13 +13,13 @@ func CreateSession(url string) (*mgo.Session, error) {
 }
 
 type MRepository struct {
-	session *mgo.Session
+	Session *mgo.Session
 }
 
 func (m *MRepository) Close() {
-	m.session.Close()
+	m.Session.Close()
 }
 
 func (m *MRepository) Collection(dbName, collection string) *mgo.Collection {
-	return m.session.DB(dbName).C(collection)
+	return m.Session.DB(dbName).C(collection)
 }
