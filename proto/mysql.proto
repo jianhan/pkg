@@ -1,7 +1,7 @@
 
 syntax = "proto3";
 
-package go_micro_pkg_mysql;
+package go.micro.pkg.mysql;
 option go_package = "mysql";
 
 // Pagination contains all pagination variables.
