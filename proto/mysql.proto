@@ -1,0 +1,46 @@
+
+syntax = "proto3";
+
+package go_micro_pkg_mysql;
+option go_package = "mysql";
+
+// Pagination contains all pagination variables.
+message Pagination {
+	uint64 page = 1;
+	uint64 per_page  = 2;
+}
+
+// SortDirection will be used for transform incomming request into mysql sort statement.
+enum SortDirection {
+  ASC = 0;
+  DESC = 1;
+}
+
+// Sort contains fields for SQL order statement.
+message Sort {
+	string field = 1;
+	SortDirection direction = 2;
+}
+
+// UpsertResult contains response for mysql upserts.
+message UpsertResults {
+	int64 rows_affected = 1;
+	int64 updated = 2;
+	int64 inserted = 3;
+}
+
+// DeleteResults contains results when rows are deleted.
+message DeleteResults {
+	int64 deleted = 1;
+}
+
+// IDs is a commonly used data.
+message IDs {
+  repeated string ids = 1;
+}
+
+// BoolField contains data for boolean field.
+message BoolField {
+	bool value = 1;
+	bool ignore = 2;
+}
