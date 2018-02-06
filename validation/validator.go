@@ -26,3 +26,13 @@ func ValidateSliceSlugs(slugs []string) error {
 	}
 	return nil
 }
+
+// CheckSlug is a wrapper for checking slug, will be used for customized
+// validation package.
+func CheckSlug(value interface{}) error {
+	s, _ := value.(string)
+	if !slug.IsSlug(s) {
+		return fmt.Errorf("%s must be a valid slug", s)
+	}
+	return nil
+}
