@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package go.micro.srv.pkg.mysql;
+option go_package="mysql";
+
+message UpsertResult {
+	int64 rows_affected = 1;
+	int64 updated = 2;
+	int64 inserted = 3;
+}
+
+message BoolField {
+	bool value = 1;
+	bool ignore = 2;
+}
+
+message Pagination {
+  uint64 page = 1;
+  uint64 per_page  = 2;
+}
+
+enum SortDirection {
+  ASC = 0;
+  DESC = 1;
+}
+
+message Sort {
+	string field = 1;
+	SortDirection direction = 2;
+}
