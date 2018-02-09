@@ -28,3 +28,9 @@ message Sort {
 	string field = 1;
 	SortDirection direction = 2;
 }
+
+enum UpsertOptions {
+	ADD = 0;
+  DELETE = 1;
+  SYNC = 2;
+}
