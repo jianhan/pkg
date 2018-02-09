@@ -29,7 +29,7 @@ message Sort {
 	SortDirection direction = 2;
 }
 
-enum UpsertOptions {
+enum UpsertOption {
 	ADD = 0;
   DELETE = 1;
   SYNC = 2;
