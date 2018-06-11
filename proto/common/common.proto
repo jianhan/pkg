@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package go.micro.srv.pkg.common;
+option go_package="common";
+import "google/protobuf/timestamp.proto";
+
+message Timestamp {
+    google.protobuf.Timestamp created_at = 1;
+    google.protobuf.Timestamp updated_at = 2;
+}
+
