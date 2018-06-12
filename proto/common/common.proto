@@ -4,7 +4,7 @@ package go.micro.srv.pkg.common;
 option go_package="common";
 
 message Timestamp {
-    uint64 created_at = 1;
-    uint64 updated_at = 2;
+    int64 created_at = 1;
+    int64 updated_at = 2;
 }
 
