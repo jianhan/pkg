@@ -59,6 +59,7 @@ func Fix(v interface{}) error {
 		if kind == reflect.Ptr && vfld.CanSet() && sfld.Name == "CreatedAt" && vfld.IsNil() {
 			vfld.Set(reflect.ValueOf(ptypes.TimestampNow()))
 		}
-
 	}
+
+	return nil
 }
